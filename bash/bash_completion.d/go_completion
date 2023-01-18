@@ -1,0 +1,29 @@
+#!/usr/bin/env bash --
+
+ _go() {
+ 	local cur prev opts help_output
+ 	cur="${COMP_WORDS[COMP_CWORD]}"
+ 	prev="${COMP_WORDS[COMP_CWORD-1]}"
+ 	opts=$(go -h |& awk 'NR >= 9 { if(NF > 0) { print $1; } else { exit } }')
+
+    help_output=$(go help ${COMP_WORDS[1]} 2>&1)
+    if [[ $help_output =~ "The commands are:" ]]; then
+        local subcommands=$(echo "$help_output" | awk '/^The commands are:/{getline; getline; flag=1} flag { if(NF > 0) { print $1; } else { exit } }')
+        if [ -n "$subcommands" ]; then
+            opts=$subcommands
+            if [[ ${COMP_CWORD} -gt 2 ]]; then
+                opts=($(compgen -f))
+            fi
+        fi 
+ 
+ 	elif [[ ${COMP_CWORD} -eq 1 ]] ; then
+ 		COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+ 		return 0
+
+    elif [[ ${COMP_CWORD} -gt 1 ]]; then
+      COMPREPLY=($(compgen -f -- ${cur}))
+      return 0
+    fi
+    COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+ }
+complete -F _go go
