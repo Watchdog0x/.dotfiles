@@ -1,4 +1,4 @@
-#!/usr/bin/env bash --
+#!/usr/bin/env bash
 
  _go() {
  	local cur prev opts help_output
